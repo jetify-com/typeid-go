@@ -1,6 +1,9 @@
 package typeid
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/gofrs/uuid"
 	"go.jetpack.io/typeid/base32"
 )
@@ -16,15 +19,7 @@ var Nil = TypeID{
 }
 
 func New(prefix string) (TypeID, error) {
-	uid, err := uuid.NewV7()
-	if err != nil {
-		return Nil, err
-	}
-	tid := TypeID{
-		prefix: prefix,
-		suffix: base32.Encode(uid),
-	}
-	return tid, nil
+	return From(prefix, "")
 }
 
 func (tid TypeID) Type() string {
@@ -56,8 +51,51 @@ func (tid TypeID) UUIDBytes() []byte {
 	return b
 }
 
-func (tid TypeID) UUIDString() string {
+func (tid TypeID) UUID() string {
 	return uuid.FromBytesOrNil(tid.UUIDBytes()).String()
+}
+
+func From(prefix string, suffix string) (TypeID, error) {
+	if err := validatePrefix(prefix); err != nil {
+		return Nil, err
+	}
+
+	if suffix == "" {
+		uid, err := uuid.NewV7()
+		if err != nil {
+			return Nil, err
+		}
+		suffix = base32.Encode(uid)
+	}
+
+	if err := validateSuffix(suffix); err != nil {
+		return Nil, err
+	}
+
+	return TypeID{
+		prefix: prefix,
+		suffix: suffix,
+	}, nil
+
+}
+
+func FromString(s string) (TypeID, error) {
+	parts := strings.SplitN(s, "_", 2)
+	return From(parts[0], parts[1])
+}
+
+func FromUUID(prefix string, uidStr string) (TypeID, error) {
+	uid, err := uuid.FromString(uidStr)
+	if err != nil {
+		return Nil, err
+	}
+	suffix := base32.Encode(uid)
+	return From(prefix, suffix)
+}
+
+func FromUUIDBytes(prefix string, bytes []byte) (TypeID, error) {
+	uidStr := uuid.FromBytesOrNil(bytes).String()
+	return FromUUID(prefix, uidStr)
 }
 
 func Must(tid TypeID, err error) TypeID {
@@ -65,4 +103,27 @@ func Must(tid TypeID, err error) TypeID {
 		panic(err)
 	}
 	return tid
+}
+
+func validatePrefix(prefix string) error {
+	// Ensure that the prefix only has lowercase ASCII characters
+	for _, c := range prefix {
+		if c < 'a' || c > 'z' {
+			return fmt.Errorf("invalid prefix: '%s'. Prefix should match [a-z]+", prefix)
+		}
+	}
+	return nil
+}
+
+func validateSuffix(suffix string) error {
+	// Validate the suffix by decoding it:
+	// 1. If the suffix is empty, it is valid
+	// 2. If the suffix is not empty, it must be a valid base32 string
+	if suffix == "" {
+		return nil
+	}
+	if _, err := base32.Decode(suffix); err != nil {
+		return fmt.Errorf("invalid suffix: %w", err)
+	}
+	return nil
 }
