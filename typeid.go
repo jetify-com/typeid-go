@@ -80,8 +80,14 @@ func From(prefix string, suffix string) (TypeID, error) {
 }
 
 func FromString(s string) (TypeID, error) {
-	parts := strings.SplitN(s, "_", 2)
-	return From(parts[0], parts[1])
+	switch parts := strings.SplitN(s, "_", 2); len(parts) {
+	case 1:
+		return From("", parts[0])
+	case 2:
+		return From(parts[0], parts[1])
+	default:
+		return Nil, fmt.Errorf("invalid typeid: %s", s)
+	}
 }
 
 func FromUUID(prefix string, uidStr string) (TypeID, error) {
