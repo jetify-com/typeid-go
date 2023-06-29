@@ -112,10 +112,18 @@ func Must(tid TypeID, err error) TypeID {
 }
 
 func validatePrefix(prefix string) error {
+	if prefix == "" {
+		return nil
+	}
+
+	if len(prefix) > 63 {
+		return fmt.Errorf("invalid prefix: %s. Prefix length is %d, expected <= 63", prefix, len(prefix))
+	}
+
 	// Ensure that the prefix only has lowercase ASCII characters
 	for _, c := range prefix {
 		if c < 'a' || c > 'z' {
-			return fmt.Errorf("invalid prefix: '%s'. Prefix should match [a-z]+", prefix)
+			return fmt.Errorf("invalid prefix: '%s'. Prefix should match [a-z]{0,63}", prefix)
 		}
 	}
 	return nil
