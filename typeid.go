@@ -81,6 +81,9 @@ func From(prefix string, suffix string) (TypeID, error) {
 
 func FromString(s string) (TypeID, error) {
 	parts := strings.SplitN(s, "_", 2)
+	if len(parts) < 2 {
+		return Nil, fmt.Errorf("invalid typeid: %s", s)
+	}
 	return From(parts[0], parts[1])
 }
 
@@ -106,6 +109,9 @@ func Must(tid TypeID, err error) TypeID {
 }
 
 func validatePrefix(prefix string) error {
+	if len(prefix) == 0 {
+		return fmt.Errorf("invalid prefix: '%s'. Prefix should match [a-z]+", prefix)
+	}
 	// Ensure that the prefix only has lowercase ASCII characters
 	for _, c := range prefix {
 		if c < 'a' || c > 'z' {
