@@ -1,10 +1,11 @@
 package typeid
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/gofrs/uuid"
+	"github.com/gofrs/uuid/v5"
 	"go.jetpack.io/typeid/base32"
 )
 
@@ -84,6 +85,9 @@ func FromString(s string) (TypeID, error) {
 	case 1:
 		return From("", parts[0])
 	case 2:
+		if parts[0] == "" {
+			return Nil, errors.New("prefix cannot be empty when there's a separator")
+		}
 		return From(parts[0], parts[1])
 	default:
 		return Nil, fmt.Errorf("invalid typeid: %s", s)

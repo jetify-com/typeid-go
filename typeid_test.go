@@ -1,8 +1,12 @@
 package typeid
 
 import (
+	_ "embed"
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v2"
 )
 
 func ExampleNew() {
@@ -70,6 +74,33 @@ func TestInvalidSuffix(t *testing.T) {
 	}
 }
 
+//go:embed testdata/invalid.yml
+var invalidYML []byte
+
+type InvalidExample struct {
+	Name string `yaml:"name"`
+	Tid  string `yaml:"typeid"`
+}
+
+func TestInvalidTestdata(t *testing.T) {
+	assert.Greater(t, len(invalidYML), 0)
+	var testdata []InvalidExample
+	err := yaml.Unmarshal(invalidYML, &testdata)
+	if err != nil {
+		t.Errorf("Failed to unmarshal testdata: %s", err)
+	}
+	assert.Greater(t, len(testdata), 0)
+
+	for _, td := range testdata {
+		t.Run(td.Name, func(t *testing.T) {
+			_, err := FromString(td.Tid)
+			if err == nil {
+				t.Errorf("Expected error for invalid typeid: %s", td.Tid)
+			}
+		})
+	}
+}
+
 func TestEncodeDecode(t *testing.T) {
 	// Generate a bunch of random typeids, encode and decode from a string
 	// and make sure the result is the same as the original.
@@ -121,6 +152,38 @@ func TestSpecialValues(t *testing.T) {
 			tid = Must(FromUUID("", td.uuid))
 			if td.tid != tid.String() {
 				t.Errorf("Expected %s, got %s", td.tid, tid.String())
+			}
+		})
+	}
+}
+
+//go:embed testdata/valid.yml
+var validYML []byte
+
+type ValidExample struct {
+	Name   string `yaml:"name"`
+	Tid    string `yaml:"typeid"`
+	Prefix string `yaml:"prefix"`
+	Uuid   string `yaml:"uuid"`
+}
+
+func TestValidTestdata(t *testing.T) {
+	assert.Greater(t, len(validYML), 0)
+	var testdata []ValidExample
+	err := yaml.Unmarshal(validYML, &testdata)
+	if err != nil {
+		t.Errorf("Failed to unmarshal testdata: %s", err)
+	}
+	assert.Greater(t, len(testdata), 0)
+
+	for _, td := range testdata {
+		t.Run(td.Name, func(t *testing.T) {
+			tid := Must(FromString(td.Tid))
+			if td.Uuid != tid.UUID() {
+				t.Errorf("Expected %s, got %s", td.Uuid, tid.UUID())
+			}
+			if td.Prefix != tid.Type() {
+				t.Errorf("Expected %s, got %s", td.Prefix, tid.Type())
 			}
 		})
 	}
