@@ -1,4 +1,4 @@
-package typeid
+package typeid_test
 
 import (
 	_ "embed"
@@ -6,22 +6,23 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.jetpack.io/typeid"
 	"gopkg.in/yaml.v2"
 )
 
 func ExampleNew() {
-	tid := Must(New("prefix"))
+	tid := typeid.Must(typeid.New("prefix"))
 	fmt.Printf("New typeid: %s\n", tid)
 }
 
 func ExampleNew_withoutPrefix() {
-	tid := Must(New(""))
+	tid := typeid.Must(typeid.New(""))
 	fmt.Printf("New typeid without prefix: %s\n", tid)
 }
 
 func ExampleFromString() {
-	tid := Must(FromString("prefix_00041061050r3gg28a1c60t3gf"))
-	fmt.Printf("Prefix: %s\nSuffix: %s\n", tid.Type(), tid.suffix)
+	tid := typeid.Must(typeid.FromString("prefix_00041061050r3gg28a1c60t3gf"))
+	fmt.Printf("Prefix: %s\nSuffix: %s\n", tid.Type(), tid.Suffix())
 	// Output:
 	// Prefix: prefix
 	// Suffix: 00041061050r3gg28a1c60t3gf
@@ -41,7 +42,7 @@ func TestInvalidPrefix(t *testing.T) {
 
 	for _, td := range testdata {
 		t.Run(td.name, func(t *testing.T) {
-			_, err := New(td.input)
+			_, err := typeid.New(td.input)
 			if err == nil {
 				t.Errorf("Expected error for invalid prefix: %s", td.input)
 			}
@@ -66,7 +67,7 @@ func TestInvalidSuffix(t *testing.T) {
 
 	for _, td := range testdata {
 		t.Run(td.name, func(t *testing.T) {
-			_, err := From("prefix", td.input)
+			_, err := typeid.From("prefix", td.input)
 			if err == nil {
 				t.Errorf("Expected error for invalid suffix: %s", td.input)
 			}
@@ -93,7 +94,7 @@ func TestInvalidTestdata(t *testing.T) {
 
 	for _, td := range testdata {
 		t.Run(td.Name, func(t *testing.T) {
-			_, err := FromString(td.Tid)
+			_, err := typeid.FromString(td.Tid)
 			if err == nil {
 				t.Errorf("Expected error for invalid typeid: %s", td.Tid)
 			}
@@ -105,8 +106,8 @@ func TestEncodeDecode(t *testing.T) {
 	// Generate a bunch of random typeids, encode and decode from a string
 	// and make sure the result is the same as the original.
 	for i := 0; i < 1000; i++ {
-		tid := Must(New("prefix"))
-		decoded, err := FromString(tid.String())
+		tid := typeid.Must(typeid.New("prefix"))
+		decoded, err := typeid.FromString(tid.String())
 		if err != nil {
 			t.Error(err)
 		}
@@ -117,8 +118,8 @@ func TestEncodeDecode(t *testing.T) {
 
 	// Repeat with the empty prefix:
 	for i := 0; i < 1000; i++ {
-		tid := Must(New(""))
-		decoded, err := FromString(tid.String())
+		tid := typeid.Must(typeid.New(""))
+		decoded, err := typeid.FromString(tid.String())
 		if err != nil {
 			t.Error(err)
 		}
@@ -143,13 +144,13 @@ func TestSpecialValues(t *testing.T) {
 	for _, td := range testdata {
 		t.Run(td.name, func(t *testing.T) {
 			// Values should be equal if we start by parsing the typeid
-			tid := Must(FromString(td.tid))
+			tid := typeid.Must(typeid.FromString(td.tid))
 			if td.uuid != tid.UUID() {
 				t.Errorf("Expected %s, got %s", td.uuid, tid.UUID())
 			}
 
 			// Values should be equal if we start by parsing the uuid
-			tid = Must(FromUUID("", td.uuid))
+			tid = typeid.Must(typeid.FromUUID("", td.uuid))
 			if td.tid != tid.String() {
 				t.Errorf("Expected %s, got %s", td.tid, tid.String())
 			}
@@ -178,7 +179,7 @@ func TestValidTestdata(t *testing.T) {
 
 	for _, td := range testdata {
 		t.Run(td.Name, func(t *testing.T) {
-			tid := Must(FromString(td.Tid))
+			tid := typeid.Must(typeid.FromString(td.Tid))
 			if td.Uuid != tid.UUID() {
 				t.Errorf("Expected %s, got %s", td.Uuid, tid.UUID())
 			}
@@ -191,13 +192,13 @@ func TestValidTestdata(t *testing.T) {
 
 func BenchmarkNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Must(New("prefix"))
+		_ = typeid.Must(typeid.New("prefix"))
 	}
 }
 
 func BenchmarkEncodeDecode(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		tid := Must(New("prefix"))
-		_ = Must(FromString(tid.String()))
+		tid := typeid.Must(typeid.New("prefix"))
+		_ = typeid.Must(typeid.FromString(tid.String()))
 	}
 }
