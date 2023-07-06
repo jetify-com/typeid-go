@@ -17,13 +17,13 @@
 # decoding and re-encoding the id, the result is the same as the original.
 #
 # In other words, the following property should always hold:
-# random_typeid: encode(decode(random_typeid))
+# random_typeid == encode(decode(random_typeid))
 #
 # Finally, while implementations should be able to decode the values below,
 # note that not all of them are UUIDv7s. When *generating* new random typeids,
 # implementations should always use UUIDv7s.
 #
-# Last updated: 2023-06-29
+# Last updated: 2023-07-05
 
 - name: nil
   typeid: "00000000000000000000000000"
@@ -49,6 +49,11 @@
   typeid: "00000000000000000000000010"
   prefix: ""
   uuid: "00000000-0000-0000-0000-000000000020"
+
+- name: max-valid
+  typeid: "7zzzzzzzzzzzzzzzzzzzzzzzzz"
+  prefix: ""
+  uuid: "ffffffff-ffff-ffff-ffff-ffffffffffff"
 
 - name: valid-alphabet
   typeid: "prefix_0123456789abcdefghjkmnpqrs"

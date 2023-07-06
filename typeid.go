@@ -153,12 +153,14 @@ func validatePrefix(prefix string) error {
 }
 
 func validateSuffix(suffix string) error {
-	// Validate the suffix by decoding it:
-	// 1. If the suffix is empty, it is valid
-	// 2. If the suffix is not empty, it must be a valid base32 string
-	if suffix == "" {
-		return nil
+	if len(suffix) != 26 {
+		return fmt.Errorf("invalid suffix: %s. Suffix length is %d, expected 26", suffix, len(suffix))
 	}
+
+	if suffix[0] > '7' {
+		return fmt.Errorf("invalid suffix: '%s'. Suffix must start with a 0-7 digit to avoid overflows", suffix)
+	}
+	// Validate the suffix by decoding it, it must be a valid base32 string
 	if _, err := base32.Decode(suffix); err != nil {
 		return fmt.Errorf("invalid suffix: %w", err)
 	}
