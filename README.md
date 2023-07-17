@@ -43,7 +43,7 @@ import (
 )
 
 func example() {
-  tid := typeid.New[UserID]()
+  tid, _ := typeid.New[UserID]()
   fmt.Println(tid)
 }
 ```
@@ -52,11 +52,11 @@ If you don't want static types, you can use the dynamic version instead:
   
 ```go
 import (
-  "go.jetpack.io/typeid/typeid"
+  "go.jetpack.io/typeid"
 )
 
 func example() {
-  tid := typeid.New("user")
+  tid, _ := typeid.New("user")
   fmt.Println(tid)
 }
 ```
