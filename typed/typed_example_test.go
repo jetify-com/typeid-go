@@ -19,13 +19,13 @@ func (accountPrefix) Type() string { return "account" }
 type AccountID struct{ typeid.TypeID[accountPrefix] }
 
 func Example() {
-	user_id, _ := typeid.New[UserID]()
-	account_id, _ := typeid.New[AccountID]()
+	userID, _ := typeid.New[UserID]()
+	accountID, _ := typeid.New[AccountID]()
 	// Each ID should have the correct type prefix:
-	fmt.Printf("User ID prefix: %s\n", user_id.Type())
-	fmt.Printf("Account ID prefix: %s\n", account_id.Type())
+	fmt.Printf("User ID prefix: %s\n", userID.Type())
+	fmt.Printf("Account ID prefix: %s\n", accountID.Type())
 	// The compiler considers their go types to be different:
-	fmt.Printf("%T != %T\n", user_id, account_id)
+	fmt.Printf("%T != %T\n", userID, accountID)
 
 	// Output:
 	// User ID prefix: user

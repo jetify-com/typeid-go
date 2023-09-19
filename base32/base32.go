@@ -84,58 +84,58 @@ func Decode(s string) ([]byte, error) {
 		return nil, errors.New("invalid length")
 	}
 
-	v := []byte(s)
+	val := []byte(s)
 	// Check if all the characters are part of the expected base32 character set.
-	if dec[v[0]] == 0xFF ||
-		dec[v[1]] == 0xFF ||
-		dec[v[2]] == 0xFF ||
-		dec[v[3]] == 0xFF ||
-		dec[v[4]] == 0xFF ||
-		dec[v[5]] == 0xFF ||
-		dec[v[6]] == 0xFF ||
-		dec[v[7]] == 0xFF ||
-		dec[v[8]] == 0xFF ||
-		dec[v[9]] == 0xFF ||
-		dec[v[10]] == 0xFF ||
-		dec[v[11]] == 0xFF ||
-		dec[v[12]] == 0xFF ||
-		dec[v[13]] == 0xFF ||
-		dec[v[14]] == 0xFF ||
-		dec[v[15]] == 0xFF ||
-		dec[v[16]] == 0xFF ||
-		dec[v[17]] == 0xFF ||
-		dec[v[18]] == 0xFF ||
-		dec[v[19]] == 0xFF ||
-		dec[v[20]] == 0xFF ||
-		dec[v[21]] == 0xFF ||
-		dec[v[22]] == 0xFF ||
-		dec[v[23]] == 0xFF ||
-		dec[v[24]] == 0xFF ||
-		dec[v[25]] == 0xFF {
+	if dec[val[0]] == 0xFF ||
+		dec[val[1]] == 0xFF ||
+		dec[val[2]] == 0xFF ||
+		dec[val[3]] == 0xFF ||
+		dec[val[4]] == 0xFF ||
+		dec[val[5]] == 0xFF ||
+		dec[val[6]] == 0xFF ||
+		dec[val[7]] == 0xFF ||
+		dec[val[8]] == 0xFF ||
+		dec[val[9]] == 0xFF ||
+		dec[val[10]] == 0xFF ||
+		dec[val[11]] == 0xFF ||
+		dec[val[12]] == 0xFF ||
+		dec[val[13]] == 0xFF ||
+		dec[val[14]] == 0xFF ||
+		dec[val[15]] == 0xFF ||
+		dec[val[16]] == 0xFF ||
+		dec[val[17]] == 0xFF ||
+		dec[val[18]] == 0xFF ||
+		dec[val[19]] == 0xFF ||
+		dec[val[20]] == 0xFF ||
+		dec[val[21]] == 0xFF ||
+		dec[val[22]] == 0xFF ||
+		dec[val[23]] == 0xFF ||
+		dec[val[24]] == 0xFF ||
+		dec[val[25]] == 0xFF {
 		return nil, errors.New("invalid base32 character")
 	}
 
 	id := make([]byte, 16)
 
 	// 6 bytes timestamp (48 bits)
-	id[0] = (dec[v[0]] << 5) | dec[v[1]]
-	id[1] = (dec[v[2]] << 3) | (dec[v[3]] >> 2)
-	id[2] = (dec[v[3]] << 6) | (dec[v[4]] << 1) | (dec[v[5]] >> 4)
-	id[3] = (dec[v[5]] << 4) | (dec[v[6]] >> 1)
-	id[4] = (dec[v[6]] << 7) | (dec[v[7]] << 2) | (dec[v[8]] >> 3)
-	id[5] = (dec[v[8]] << 5) | dec[v[9]]
+	id[0] = (dec[val[0]] << 5) | dec[val[1]]
+	id[1] = (dec[val[2]] << 3) | (dec[val[3]] >> 2)
+	id[2] = (dec[val[3]] << 6) | (dec[val[4]] << 1) | (dec[val[5]] >> 4)
+	id[3] = (dec[val[5]] << 4) | (dec[val[6]] >> 1)
+	id[4] = (dec[val[6]] << 7) | (dec[val[7]] << 2) | (dec[val[8]] >> 3)
+	id[5] = (dec[val[8]] << 5) | dec[val[9]]
 
 	// 10 bytes of entropy (80 bits)
-	id[6] = (dec[v[10]] << 3) | (dec[v[11]] >> 2) // First 4 bits are the version
-	id[7] = (dec[v[11]] << 6) | (dec[v[12]] << 1) | (dec[v[13]] >> 4)
-	id[8] = (dec[v[13]] << 4) | (dec[v[14]] >> 1) // First 2 bits are the variant
-	id[9] = (dec[v[14]] << 7) | (dec[v[15]] << 2) | (dec[v[16]] >> 3)
-	id[10] = (dec[v[16]] << 5) | dec[v[17]]
-	id[11] = (dec[v[18]] << 3) | dec[v[19]]>>2
-	id[12] = (dec[v[19]] << 6) | (dec[v[20]] << 1) | (dec[v[21]] >> 4)
-	id[13] = (dec[v[21]] << 4) | (dec[v[22]] >> 1)
-	id[14] = (dec[v[22]] << 7) | (dec[v[23]] << 2) | (dec[v[24]] >> 3)
-	id[15] = (dec[v[24]] << 5) | dec[v[25]]
+	id[6] = (dec[val[10]] << 3) | (dec[val[11]] >> 2) // First 4 bits are the version
+	id[7] = (dec[val[11]] << 6) | (dec[val[12]] << 1) | (dec[val[13]] >> 4)
+	id[8] = (dec[val[13]] << 4) | (dec[val[14]] >> 1) // First 2 bits are the variant
+	id[9] = (dec[val[14]] << 7) | (dec[val[15]] << 2) | (dec[val[16]] >> 3)
+	id[10] = (dec[val[16]] << 5) | dec[val[17]]
+	id[11] = (dec[val[18]] << 3) | dec[val[19]]>>2
+	id[12] = (dec[val[19]] << 6) | (dec[val[20]] << 1) | (dec[val[21]] >> 4)
+	id[13] = (dec[val[21]] << 4) | (dec[val[22]] >> 1)
+	id[14] = (dec[val[22]] << 7) | (dec[val[23]] << 2) | (dec[val[24]] >> 3)
+	id[15] = (dec[val[24]] << 5) | dec[val[25]]
 
 	return id, nil
 }

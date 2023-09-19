@@ -141,18 +141,18 @@ func TestSpecialValues(t *testing.T) {
 		{"sixteen", "0000000000000000000000000g", "00000000-0000-0000-0000-000000000010"},
 		{"thirty-two", "00000000000000000000000010", "00000000-0000-0000-0000-000000000020"},
 	}
-	for _, td := range testdata {
-		t.Run(td.name, func(t *testing.T) {
+	for _, data := range testdata {
+		t.Run(data.name, func(t *testing.T) {
 			// Values should be equal if we start by parsing the typeid
-			tid := typeid.Must(typeid.FromString(td.tid))
-			if td.uuid != tid.UUID() {
-				t.Errorf("Expected %s, got %s", td.uuid, tid.UUID())
+			tid := typeid.Must(typeid.FromString(data.tid))
+			if data.uuid != tid.UUID() {
+				t.Errorf("Expected %s, got %s", data.uuid, tid.UUID())
 			}
 
 			// Values should be equal if we start by parsing the uuid
-			tid = typeid.Must(typeid.FromUUID("", td.uuid))
-			if td.tid != tid.String() {
-				t.Errorf("Expected %s, got %s", td.tid, tid.String())
+			tid = typeid.Must(typeid.FromUUID("", data.uuid))
+			if data.tid != tid.String() {
+				t.Errorf("Expected %s, got %s", data.tid, tid.String())
 			}
 		})
 	}
@@ -165,7 +165,7 @@ type ValidExample struct {
 	Name   string `yaml:"name"`
 	Tid    string `yaml:"typeid"`
 	Prefix string `yaml:"prefix"`
-	Uuid   string `yaml:"uuid"`
+	UUID   string `yaml:"uuid"`
 }
 
 func TestValidTestdata(t *testing.T) {
@@ -180,8 +180,8 @@ func TestValidTestdata(t *testing.T) {
 	for _, td := range testdata {
 		t.Run(td.Name, func(t *testing.T) {
 			tid := typeid.Must(typeid.FromString(td.Tid))
-			if td.Uuid != tid.UUID() {
-				t.Errorf("Expected %s, got %s", td.Uuid, tid.UUID())
+			if td.UUID != tid.UUID() {
+				t.Errorf("Expected %s, got %s", td.UUID, tid.UUID())
 			}
 			if td.Prefix != tid.Type() {
 				t.Errorf("Expected %s, got %s", td.Prefix, tid.Type())

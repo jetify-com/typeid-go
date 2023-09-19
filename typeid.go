@@ -53,7 +53,7 @@ func (tid TypeID) UUIDBytes() []byte {
 	// Decode only fails if the suffix cannot be decoded for one of two reasons:
 	// 1. The suffix is not 26 characters long
 	// 2. The suffix contains characters that are not in the base32 alphabet
-	// We gurantee that the suffix is valid in the TypeID constructors, so this panic
+	// We guarantee that the suffix is valid in the TypeID constructors, so this panic
 	// should never be reached.
 	if err != nil {
 		panic(err)
