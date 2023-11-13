@@ -189,16 +189,3 @@ func TestValidTestdata(t *testing.T) {
 		})
 	}
 }
-
-func BenchmarkNew(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_ = typeid.Must(typeid.New("prefix"))
-	}
-}
-
-func BenchmarkEncodeDecode(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		tid := typeid.Must(typeid.New("prefix"))
-		_ = typeid.Must(typeid.FromString(tid.String()))
-	}
-}
