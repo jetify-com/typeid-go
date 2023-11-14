@@ -6,21 +6,20 @@ import (
 	"testing"
 
 	"github.com/gofrs/uuid/v5"
-	untyped "go.jetpack.io/typeid"
-	"go.jetpack.io/typeid/typed"
+	"go.jetpack.io/typeid"
 )
 
 func BenchmarkNew(b *testing.B) {
 	b.Run("id=untyped", func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
-			untyped.New("prefix")
+			typeid.WithPrefix("prefix")
 		}
 	})
 	b.Run("id=typed", func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
-			typed.New[TestPrefix]()
+			typeid.New[TestID]()
 		}
 	})
 	b.Run("id=uuid", func(b *testing.B) {
@@ -53,9 +52,9 @@ func BenchmarkString(b *testing.B) {
 }
 
 func benchUntypedString(n int) (string, func(*testing.B)) {
-	ids := make([]untyped.TypeID, n)
+	ids := make([]typeid.AnyID, n)
 	for i := range ids {
-		ids[i] = untyped.Must(untyped.New("prefix"))
+		ids[i] = typeid.Must(typeid.WithPrefix("prefix"))
 	}
 	return fmt.Sprintf("n=%d", n), func(b *testing.B) {
 		b.ReportAllocs()
@@ -69,9 +68,9 @@ func benchUntypedString(n int) (string, func(*testing.B)) {
 }
 
 func benchTypedString(n int) (string, func(*testing.B)) {
-	ids := make([]typed.TypeID[TestPrefix], n)
+	ids := make([]TestID, n)
 	for i := range ids {
-		ids[i] = typed.Must(typed.New[TestPrefix]())
+		ids[i] = typeid.Must(typeid.New[TestID]())
 	}
 	return fmt.Sprintf("n=%d", n), func(b *testing.B) {
 		b.ReportAllocs()
@@ -118,14 +117,14 @@ func BenchmarkFrom(b *testing.B) {
 func benchUntypedFrom(n int) (string, func(*testing.B)) {
 	ids := make([]struct{ prefix, suffix string }, n)
 	for i := range ids {
-		id := untyped.Must(untyped.New("prefix"))
+		id := typeid.Must(typeid.WithPrefix("prefix"))
 		ids[i].prefix, ids[i].suffix = id.Type(), id.Suffix()
 	}
 	return fmt.Sprintf("n=%d", n), func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			for _, id := range ids {
-				untyped.From(id.prefix, id.suffix)
+				typeid.From(id.prefix, id.suffix)
 			}
 		}
 		b.ReportMetric(float64(n*b.N)/b.Elapsed().Seconds(), "id/s")
@@ -135,13 +134,13 @@ func benchUntypedFrom(n int) (string, func(*testing.B)) {
 func benchTypedFrom(n int) (string, func(*testing.B)) {
 	suffixes := make([]string, n)
 	for i := range suffixes {
-		suffixes[i] = typed.Must(typed.New[TestPrefix]()).Suffix()
+		suffixes[i] = typeid.Must(typeid.New[TestID]()).Suffix()
 	}
 	return fmt.Sprintf("n=%d", n), func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			for _, suffix := range suffixes {
-				typed.From[TestPrefix](suffix)
+				typeid.FromSuffix[TestID](suffix)
 			}
 		}
 		b.ReportMetric(float64(n*b.N)/b.Elapsed().Seconds(), "id/s")
@@ -172,13 +171,13 @@ func BenchmarkFromString(b *testing.B) {
 func benchUntypedFromString(n int) (string, func(*testing.B)) {
 	ids := make([]string, n)
 	for i := range ids {
-		ids[i] = untyped.Must(untyped.New("prefix")).String()
+		ids[i] = typeid.Must(typeid.WithPrefix("prefix")).String()
 	}
 	return fmt.Sprintf("n=%d", n), func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			for _, id := range ids {
-				untyped.FromString(id)
+				typeid.FromString(id)
 			}
 		}
 		b.ReportMetric(float64(n*b.N)/b.Elapsed().Seconds(), "id/s")
@@ -188,13 +187,13 @@ func benchUntypedFromString(n int) (string, func(*testing.B)) {
 func benchTypedFromString(n int) (string, func(*testing.B)) {
 	ids := make([]string, n)
 	for i := range ids {
-		ids[i] = typed.Must(typed.New[TestPrefix]()).String()
+		ids[i] = typeid.Must(typeid.New[TestID]()).String()
 	}
 	return fmt.Sprintf("n=%d", n), func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			for _, id := range ids {
-				typed.FromString[TestPrefix](id)
+				typeid.Parse[TestID](id)
 			}
 		}
 		b.ReportMetric(float64(n*b.N)/b.Elapsed().Seconds(), "id/s")
@@ -241,13 +240,13 @@ func BenchmarkFromBytes(b *testing.B) {
 func benchUntypedFromBytes(n int) (string, func(*testing.B)) {
 	ids := make([][]byte, n)
 	for i := range ids {
-		ids[i] = untyped.Must(untyped.New("prefix")).UUIDBytes()
+		ids[i] = typeid.Must(typeid.WithPrefix("prefix")).UUIDBytes()
 	}
 	return fmt.Sprintf("n=%d", n), func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			for _, id := range ids {
-				untyped.FromUUIDBytes("prefix", id)
+				typeid.FromUUIDBytes[typeid.AnyID]("prefix", id)
 			}
 		}
 		b.ReportMetric(float64(n*b.N)/b.Elapsed().Seconds(), "id/s")
@@ -257,13 +256,13 @@ func benchUntypedFromBytes(n int) (string, func(*testing.B)) {
 func benchTypedFromBytes(n int) (string, func(*testing.B)) {
 	ids := make([][]byte, n)
 	for i := range ids {
-		ids[i] = typed.Must(typed.New[TestPrefix]()).UUIDBytes()
+		ids[i] = typeid.Must(typeid.New[TestID]()).UUIDBytes()
 	}
 	return fmt.Sprintf("n=%d", n), func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			for _, id := range ids {
-				typed.FromUUIDBytes[TestPrefix](id)
+				typeid.FromUUIDBytes[TestID]("prefix", id)
 			}
 		}
 		b.ReportMetric(float64(n*b.N)/b.Elapsed().Seconds(), "id/s")
@@ -288,7 +287,7 @@ func benchUUIDFromBytes(n int) (string, func(*testing.B)) {
 
 func BenchmarkSuffix(b *testing.B) {
 	b.Run("id=untyped", func(b *testing.B) {
-		id := untyped.Must(untyped.New("prefix"))
+		id := typeid.Must(typeid.WithPrefix("prefix"))
 
 		b.ReportAllocs()
 		b.ResetTimer()
@@ -297,7 +296,7 @@ func BenchmarkSuffix(b *testing.B) {
 		}
 	})
 	b.Run("id=typed", func(b *testing.B) {
-		id := typed.Must(typed.New[TestPrefix]())
+		id := typeid.Must(typeid.New[TestID]())
 
 		b.ReportAllocs()
 		b.ResetTimer()
@@ -309,7 +308,7 @@ func BenchmarkSuffix(b *testing.B) {
 
 func BenchmarkUUIDBytes(b *testing.B) {
 	b.Run("id=untyped", func(b *testing.B) {
-		id := untyped.Must(untyped.New("prefix"))
+		id := typeid.Must(typeid.WithPrefix("prefix"))
 
 		b.ReportAllocs()
 		b.ResetTimer()
@@ -318,7 +317,7 @@ func BenchmarkUUIDBytes(b *testing.B) {
 		}
 	})
 	b.Run("id=typed", func(b *testing.B) {
-		id := typed.Must(typed.New[TestPrefix]())
+		id := typeid.Must(typeid.New[TestID]())
 
 		b.ReportAllocs()
 		b.ResetTimer()
@@ -337,6 +336,25 @@ func BenchmarkUUIDBytes(b *testing.B) {
 	})
 }
 
-type TestPrefix string
+func BenchmarkNewWithPrefix(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = typeid.Must(typeid.WithPrefix("prefix"))
+	}
+}
 
-func (p TestPrefix) Type() string { return "prefix" }
+func BenchmarkEncodeDecode(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		tid := typeid.Must(typeid.WithPrefix("prefix"))
+		_ = typeid.Must(typeid.FromString(tid.String()))
+	}
+}
+
+// TODO: define these in a shared file if we're gonna use in several tests.
+
+type TestPrefix struct{}
+
+func (TestPrefix) Prefix() string { return "prefix" }
+
+type TestID struct {
+	typeid.TypeID[TestPrefix]
+}

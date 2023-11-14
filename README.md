@@ -18,37 +18,10 @@ go get go.jetpack.io/typeid
 ```
 
 ## Usage
-This library provides both a statically typed and a dynamically typed version of TypeIDs.
+This library provides a go implementation of TypeID that allows you
+to define your own custom id types for added compile-time safety.
 
-The statically typed version lives under the `typed` package. It makes it possible for
-the go compiler itself to enforce type safety.
-
-To use it, first define your TypeID types:
-
-```go
-import (
-  typeid "go.jetpack.io/typeid/typed"
-)
-
-type userPrefix struct{}
-func (userPrefix) Type() string { return "user" }
-type UserID struct { typeid.TypeID[userPrefix] }
-```
-
-And now use those types to generate TypeIDs:
-
-```go
-import (
-  typeid "go.jetpack.io/typeid/typed"
-)
-
-func example() {
-  tid, _ := typeid.New[UserID]()
-  fmt.Println(tid)
-}
-```
-
-If you don't want static types, you can use the dynamic version instead:
+If you don't need compile-time safety, you can use the provided `typeid.AnyID` directly:
   
 ```go
 import (
@@ -56,7 +29,41 @@ import (
 )
 
 func example() {
-  tid, _ := typeid.New("user")
+  tid, _ := typeid.WithPrefix("user")
+  fmt.Println(tid)
+}
+```
+
+If you want compile-time safety, define your own custom types with two steps:
+1. Define a struct the implements the method `Prefix`. Prefix should return the
+   string that should be used as the prefix for your custom type.
+2. Define you own id type, by embedding `typeid.TypeID[CustomPrefix]`
+
+For example to define a UserID with prefix `user`:
+```go
+import (
+  "go.jetpack.io/typeid"
+)
+
+// Define the prefix:
+type UserPrefix struct {}
+func (UserPrefix) Prefix() string { return "user" }
+
+// Define UserID:
+type UserID struct {
+	typeid.TypeID[UserPrefix]
+}
+```
+
+Now you can use the UserID type to generate new ids:
+
+```go
+import (
+  "go.jetpack.io/typeid"
+)
+
+func example() {
+  tid, _ := typeid.New[UserID]()
   fmt.Println(tid)
 }
 ```
