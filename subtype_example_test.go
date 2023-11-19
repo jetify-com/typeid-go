@@ -39,8 +39,8 @@ func Example() {
 	// Other than that, your custom types should have the same methods as a
 	// regular TypeID.
 	// For example, we can check that each ID has the correct type prefix:
-	fmt.Printf("User ID prefix: %s\n", userID.Type())
-	fmt.Printf("Account ID prefix: %s\n", accountID.Type())
+	fmt.Printf("User ID prefix: %s\n", userID.Prefix())
+	fmt.Printf("Account ID prefix: %s\n", accountID.Prefix())
 
 	// Despite both of them being TypeIDs, you now get compile-time safety because
 	// the compiler considers their go types to be different:

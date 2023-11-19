@@ -19,7 +19,7 @@ import (
 //		   typeid.TypeID[UserPrefix]
 //	  }
 //	  id, err := typeid.New[UserID]()
-func New[T Subtype, PT subtypePtr[T]]() (T, error) {
+func New[T Subtype, PT SubtypePtr[T]]() (T, error) {
 	if isAnyID[T]() {
 		var id T
 		return id, errors.New("constructor error: use WithPrefix(), New() is for Subtypes")
@@ -51,7 +51,7 @@ func From(prefix string, suffix string) (AnyID, error) {
 //		   typeid.TypeID[UserPrefix]
 //	  }
 //	  id, err := typeid.FromSuffix[UserID]("00041061050r3gg28a1c60t3gf")
-func FromSuffix[T Subtype, PT subtypePtr[T]](suffix string) (T, error) {
+func FromSuffix[T Subtype, PT SubtypePtr[T]](suffix string) (T, error) {
 	if isAnyID[T]() {
 		var id T
 		return id, errors.New("constructor error: use From(prefix, suffix), FromSuffix is for Subtypes")
@@ -75,7 +75,7 @@ func FromString(s string) (AnyID, error) {
 //		   typeid.TypeID[UserPrefix]
 //	  }
 //	  id, err := typeid.Parse[UserID]("user_00041061050r3gg28a1c60t3gf")
-func Parse[T Subtype, PT subtypePtr[T]](s string) (T, error) {
+func Parse[T Subtype, PT SubtypePtr[T]](s string) (T, error) {
 	prefix, suffix, err := split(s)
 	if err != nil {
 		var id T
@@ -99,7 +99,7 @@ func split(id string) (string, string, error) {
 }
 
 // FromUUID encodes the given UUID (in hex string form) as a TypeID with the given prefix.
-func FromUUID[T Subtype, PT subtypePtr[T]](prefix string, uidStr string) (T, error) {
+func FromUUID[T Subtype, PT SubtypePtr[T]](prefix string, uidStr string) (T, error) {
 	uid, err := uuid.FromString(uidStr)
 	var nilID T
 
@@ -111,12 +111,12 @@ func FromUUID[T Subtype, PT subtypePtr[T]](prefix string, uidStr string) (T, err
 }
 
 // FromUUID encodes the given UUID (in byte form) as a TypeID with the given prefix.
-func FromUUIDBytes[T Subtype, PT subtypePtr[T]](prefix string, bytes []byte) (T, error) {
+func FromUUIDBytes[T Subtype, PT SubtypePtr[T]](prefix string, bytes []byte) (T, error) {
 	uidStr := uuid.FromBytesOrNil(bytes).String()
 	return FromUUID[T, PT](prefix, uidStr)
 }
 
-func from[T Subtype, PT subtypePtr[T]](prefix string, suffix string) (T, error) {
+func from[T Subtype, PT SubtypePtr[T]](prefix string, suffix string) (T, error) {
 	var tid T
 	if err := validatePrefix[T](prefix); err != nil {
 		return tid, err

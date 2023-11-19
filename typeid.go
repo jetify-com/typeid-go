@@ -11,8 +11,8 @@ type TypeID[P PrefixType] struct {
 	suffix string
 }
 
-// Type returns the type prefix of the TypeID
-func (tid TypeID[P]) Type() string {
+// Prefix returns the type prefix of the TypeID
+func (tid TypeID[P]) Prefix() string {
 	if isAnyPrefix[P]() {
 		return tid.prefix
 	}
@@ -33,10 +33,10 @@ func (tid TypeID[P]) Suffix() string {
 // String returns the TypeID in it's canonical string representation of the form:
 // <prefix>_<suffix> where <suffix> is the canonical base32 representation of the UUID
 func (tid TypeID[P]) String() string {
-	if tid.Type() == "" {
+	if tid.Prefix() == "" {
 		return tid.Suffix()
 	}
-	return tid.Type() + "_" + tid.Suffix()
+	return tid.Prefix() + "_" + tid.Suffix()
 }
 
 // UUIDBytes decodes the TypeID's suffix as a UUID and returns it's bytes

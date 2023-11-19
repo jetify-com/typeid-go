@@ -10,14 +10,14 @@ import (
 
 func ExampleNew() {
 	tid := typeid.Must(typeid.New[AccountID]())
-	fmt.Println("Prefix:", tid.Type())
+	fmt.Println("Prefix:", tid.Prefix())
 	// Output:
 	// Prefix: account
 }
 
 func ExampleFromSuffix() {
 	tid := typeid.Must(typeid.FromSuffix[UserID]("00041061050r3gg28a1c60t3gf"))
-	fmt.Printf("Prefix: %s\nSuffix: %s\n", tid.Type(), tid.Suffix())
+	fmt.Printf("Prefix: %s\nSuffix: %s\n", tid.Prefix(), tid.Suffix())
 	// Output:
 	// Prefix: user
 	// Suffix: 00041061050r3gg28a1c60t3gf
@@ -43,16 +43,16 @@ func TestSubtypeNil(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, nilUser, emptyUser)
 	assert.Equal(t, nilUser.String(), emptyUser.String())
-	assert.Equal(t, nilUser.Type(), emptyUser.Type())
+	assert.Equal(t, nilUser.Prefix(), emptyUser.Prefix())
 	assert.Equal(t, nilUser.UUID(), emptyUser.UUID())
 	assert.Equal(t, nilUser.UUIDBytes(), emptyUser.UUIDBytes())
 	assert.Equal(t, "user_00000000000000000000000000", nilUser.String())
-	assert.Equal(t, "user", nilUser.Type())
+	assert.Equal(t, "user", nilUser.Prefix())
 
 	parsed, err := typeid.FromString("user_00000000000000000000000000")
 	assert.NoError(t, err)
 	assert.Equal(t, "user_00000000000000000000000000", parsed.String())
-	assert.Equal(t, "user", parsed.Type())
+	assert.Equal(t, "user", parsed.Prefix())
 	assert.Equal(t, "00000000000000000000000000", parsed.Suffix())
 }
 

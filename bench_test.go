@@ -118,7 +118,7 @@ func benchUntypedFrom(n int) (string, func(*testing.B)) {
 	ids := make([]struct{ prefix, suffix string }, n)
 	for i := range ids {
 		id := typeid.Must(typeid.WithPrefix("prefix"))
-		ids[i].prefix, ids[i].suffix = id.Type(), id.Suffix()
+		ids[i].prefix, ids[i].suffix = id.Prefix(), id.Suffix()
 	}
 	return fmt.Sprintf("n=%d", n), func(b *testing.B) {
 		b.ReportAllocs()

@@ -4,13 +4,18 @@ package typeid
 // For example, if you want to create an `OrgID` type that only accepts
 // an `org_` prefix.
 type Subtype interface {
-	Type() string
+	Prefix() string
+	Suffix() string
+	String() string
+	UUIDBytes() []byte
+	UUID() string
+
 	isTypeID() bool
 }
 
-// var _ Subtype = (*TypeID[Any])(nil)
+var _ Subtype = (*TypeID[AnyPrefix])(nil)
 
-type subtypePtr[T any] interface {
+type SubtypePtr[T any] interface {
 	*T
 	init(prefix string, suffix string)
 }
@@ -51,5 +56,5 @@ func isAnyID[T Subtype]() bool {
 
 func defaultType[T Subtype]() string {
 	var id T
-	return id.Type()
+	return id.Prefix()
 }

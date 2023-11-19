@@ -22,7 +22,7 @@ func ExampleWithPrefix_emptyPrefix() {
 
 func ExampleFromString() {
 	tid := typeid.Must(typeid.FromString("prefix_00041061050r3gg28a1c60t3gf"))
-	fmt.Printf("Prefix: %s\nSuffix: %s\n", tid.Type(), tid.Suffix())
+	fmt.Printf("Prefix: %s\nSuffix: %s\n", tid.Prefix(), tid.Suffix())
 	// Output:
 	// Prefix: prefix
 	// Suffix: 00041061050r3gg28a1c60t3gf
@@ -193,8 +193,8 @@ func TestValidTestdata(t *testing.T) {
 			if td.UUID != tid.UUID() {
 				t.Errorf("Expected %s, got %s", td.UUID, tid.UUID())
 			}
-			if td.Prefix != tid.Type() {
-				t.Errorf("Expected %s, got %s", td.Prefix, tid.Type())
+			if td.Prefix != tid.Prefix() {
+				t.Errorf("Expected %s, got %s", td.Prefix, tid.Prefix())
 			}
 		})
 	}
