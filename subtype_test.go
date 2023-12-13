@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/gofrs/uuid/v5"
 	"github.com/stretchr/testify/assert"
 	"go.jetpack.io/typeid"
 )
@@ -80,4 +81,20 @@ func TestParse(t *testing.T) {
 		_, err = typeid.Parse[AccountID](tid.String())
 		assert.Error(t, err)
 	}
+}
+
+func TestFromUUID(t *testing.T) {
+	uid, err := uuid.NewV7()
+	assert.NoError(t, err)
+	id, err := typeid.FromUUID[UserID](uid.String())
+	assert.NoError(t, err)
+	assert.Equal(t, uid.String(), id.UUID())
+}
+
+func TestFromUUIDBytes(t *testing.T) {
+	uid, err := uuid.NewV7()
+	assert.NoError(t, err)
+	id, err := typeid.FromUUIDBytes[UserID](uid.Bytes())
+	assert.NoError(t, err)
+	assert.Equal(t, uid.Bytes(), id.UUIDBytes())
 }

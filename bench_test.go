@@ -246,7 +246,7 @@ func benchUntypedFromBytes(n int) (string, func(*testing.B)) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			for _, id := range ids {
-				typeid.FromUUIDBytes[typeid.AnyID]("prefix", id)
+				typeid.FromUUIDBytesWithPrefix("prefix", id)
 			}
 		}
 		b.ReportMetric(float64(n*b.N)/b.Elapsed().Seconds(), "id/s")
@@ -262,7 +262,7 @@ func benchTypedFromBytes(n int) (string, func(*testing.B)) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			for _, id := range ids {
-				typeid.FromUUIDBytes[TestID]("prefix", id)
+				typeid.FromUUIDBytesWithPrefix("prefix", id)
 			}
 		}
 		b.ReportMetric(float64(n*b.N)/b.Elapsed().Seconds(), "id/s")

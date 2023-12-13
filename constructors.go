@@ -9,6 +9,8 @@ import (
 	"go.jetpack.io/typeid/base32"
 )
 
+var ErrConstructor = errors.New("constructor error")
+
 // New returns a new TypeID of the given type with a random suffix.
 //
 // Use the generic argument to pass in your typeid Subtype:
@@ -98,8 +100,45 @@ func split(id string) (string, string, error) {
 	}
 }
 
-// FromUUID encodes the given UUID (in hex string form) as a TypeID with the given prefix.
-func FromUUID[T Subtype, PT SubtypePtr[T]](prefix string, uidStr string) (T, error) {
+// FromUUID encodes the given UUID (in hex string form) as a TypeID
+func FromUUID[T Subtype, PT SubtypePtr[T]](uidStr string) (T, error) {
+	if isAnyID[T]() {
+		var id T
+		return id, fmt.Errorf(
+			"%w: use FromUUIDWithPrefix(), FromUUID() is for Subtypes",
+			ErrConstructor,
+		)
+	}
+	return fromUUID[T, PT](defaultPrefix[T](), uidStr)
+}
+
+// FromUUIDBytes encodes the given UUID (in byte form) as a TypeID
+func FromUUIDBytes[T Subtype, PT SubtypePtr[T]](bytes []byte) (T, error) {
+	if isAnyID[T]() {
+		var id T
+		return id, fmt.Errorf(
+			"%w: use FromUUIDBytesWithPrefix(), FromUUIDBytes() is for Subtypes",
+			ErrConstructor,
+		)
+	}
+	uidStr := uuid.FromBytesOrNil(bytes).String()
+	return FromUUID[T, PT](uidStr)
+}
+
+// FromUUIDWithPrefix encodes the given UUID (in hex string form) as a TypeID
+// with the given prefix.
+func FromUUIDWithPrefix(prefix string, uidStr string) (AnyID, error) {
+	return fromUUID[AnyID](prefix, uidStr)
+}
+
+// FromUUID encodes the given UUID (in byte form) as a TypeID with the given
+// prefix.
+func FromUUIDBytesWithPrefix(prefix string, bytes []byte) (AnyID, error) {
+	uidStr := uuid.FromBytesOrNil(bytes).String()
+	return FromUUIDWithPrefix(prefix, uidStr)
+}
+
+func fromUUID[T Subtype, PT SubtypePtr[T]](prefix, uidStr string) (T, error) {
 	uid, err := uuid.FromString(uidStr)
 	var nilID T
 
@@ -108,12 +147,6 @@ func FromUUID[T Subtype, PT SubtypePtr[T]](prefix string, uidStr string) (T, err
 	}
 	suffix := base32.Encode(uid)
 	return from[T, PT](prefix, suffix)
-}
-
-// FromUUID encodes the given UUID (in byte form) as a TypeID with the given prefix.
-func FromUUIDBytes[T Subtype, PT SubtypePtr[T]](prefix string, bytes []byte) (T, error) {
-	uidStr := uuid.FromBytesOrNil(bytes).String()
-	return FromUUID[T, PT](prefix, uidStr)
 }
 
 func from[T Subtype, PT SubtypePtr[T]](prefix string, suffix string) (T, error) {
