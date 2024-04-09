@@ -2,7 +2,7 @@
 
 ### A golang implementation of [TypeIDs](https://github.com/jetify-com/typeid)
 
-![License: Apache 2.0](https://img.shields.io/github/license/jetpack-io/typeid-go) [![Go Reference](https://pkg.go.dev/badge/go.jetpack.io/typeid.svg)](https://pkg.go.dev/go.jetpack.io/typeid)
+![License: Apache 2.0](https://img.shields.io/github/license/jetify-com/typeid-go) [![Go Reference](https://pkg.go.dev/badge/go.jetpack.io/typeid.svg)](https://pkg.go.dev/go.jetpack.io/typeid)
 
 TypeIDs are a modern, **type-safe**, globally unique identifier based on the upcoming
 UUIDv7 standard. They provide a ton of nice properties that make them a great choice
