@@ -6,7 +6,7 @@ import (
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/stretchr/testify/assert"
-	"go.jetpack.io/typeid"
+	"go.jetify.com/typeid"
 )
 
 func ExampleNew() {

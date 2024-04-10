@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go.jetpack.io/typeid"
+	"go.jetify.com/typeid"
 	"gopkg.in/yaml.v2"
 )
 

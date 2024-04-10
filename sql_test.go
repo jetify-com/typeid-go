@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go.jetpack.io/typeid"
+	"go.jetify.com/typeid"
 )
 
 func TestScan(t *testing.T) {

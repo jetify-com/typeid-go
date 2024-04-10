@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid/v5"
-	"go.jetpack.io/typeid/base32"
+	"go.jetify.com/typeid/base32"
 )
 
 var ErrConstructor = errors.New("constructor error")

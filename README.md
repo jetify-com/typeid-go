@@ -2,7 +2,7 @@
 
 ### A golang implementation of [TypeIDs](https://github.com/jetify-com/typeid)
 
-![License: Apache 2.0](https://img.shields.io/github/license/jetify-com/typeid-go) [![Go Reference](https://pkg.go.dev/badge/go.jetpack.io/typeid.svg)](https://pkg.go.dev/go.jetpack.io/typeid)
+![License: Apache 2.0](https://img.shields.io/github/license/jetify-com/typeid-go) [![Go Reference](https://pkg.go.dev/badge/go.jetify.com/typeid.svg)](https://pkg.go.dev/go.jetify.com/typeid)
 
 TypeIDs are a modern, **type-safe**, globally unique identifier based on the upcoming
 UUIDv7 standard. They provide a ton of nice properties that make them a great choice
@@ -16,7 +16,7 @@ This particular implementation provides a go library for generating and parsing 
 To add this library as a dependency in your go module, run:
 
 ```bash
-go get go.jetpack.io/typeid
+go get go.jetify.com/typeid
 ```
 
 ## Usage
@@ -28,7 +28,7 @@ If you don't need compile-time safety, you can use the provided `typeid.AnyID` d
 
 ```go
 import (
-  "go.jetpack.io/typeid"
+  "go.jetify.com/typeid"
 )
 
 func example() {
@@ -47,7 +47,7 @@ For example to define a UserID with prefix `user`:
 
 ```go
 import (
-  "go.jetpack.io/typeid"
+  "go.jetify.com/typeid"
 )
 
 // Define the prefix:
@@ -64,7 +64,7 @@ Now you can use the UserID type to generate new ids:
 
 ```go
 import (
-  "go.jetpack.io/typeid"
+  "go.jetify.com/typeid"
 )
 
 func example() {
@@ -73,4 +73,4 @@ func example() {
 }
 ```
 
-For the full documentation, see this package's [godoc](https://pkg.go.dev/go.jetpack.io/typeid).
+For the full documentation, see this package's [godoc](https://pkg.go.dev/go.jetify.com/typeid).

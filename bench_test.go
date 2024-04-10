@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/gofrs/uuid/v5"
-	"go.jetpack.io/typeid"
+	"go.jetify.com/typeid"
 )
 
 func BenchmarkNew(b *testing.B) {
