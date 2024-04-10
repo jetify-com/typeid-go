@@ -1,6 +1,8 @@
 module go.jetify.com/typeid
 
-go 1.20
+go 1.21
+
+toolchain go1.22.1
 
 require (
 	github.com/gofrs/uuid/v5 v5.1.0
