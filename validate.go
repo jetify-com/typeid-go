@@ -11,10 +11,18 @@ func validatePrefix[T Subtype](prefix string) error {
 		return fmt.Errorf("invalid prefix: %s. Prefix length is %d, expected <= 63", prefix, len(prefix))
 	}
 
+	if len(prefix) > 0 && prefix[0] == '_' {
+		return fmt.Errorf("invalid prefix: %s. Prefix should not start with an underscore", prefix)
+	}
+
+	if len(prefix) > 0 && prefix[len(prefix)-1] == '_' {
+		return fmt.Errorf("invalid prefix: %s. Prefix should not end with an underscore", prefix)
+	}
+
 	// Ensure that the prefix only has lowercase ASCII characters
 	for _, c := range prefix {
-		if c < 'a' || c > 'z' {
-			return fmt.Errorf("invalid prefix: '%s'. Prefix should match [a-z]{0,63}", prefix)
+		if (c < 'a' || c > 'z') && c != '_' {
+			return fmt.Errorf("invalid prefix: '%s'. Prefix should only contain characters in [a-z_]", prefix)
 		}
 	}
 
