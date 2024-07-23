@@ -60,7 +60,7 @@ func FromSuffix[T Subtype, PT SubtypePtr[T]](suffix string) (T, error) {
 	}
 
 	prefix := defaultType[T]()
-	return from[T, PT](prefix, suffix)
+	return parse[T, PT](prefix, suffix)
 }
 
 // FromString parses a TypeID from a string of the form <prefix>_<suffix>
@@ -83,7 +83,7 @@ func Parse[T Subtype, PT SubtypePtr[T]](s string) (T, error) {
 		var id T
 		return id, err
 	}
-	return from[T, PT](prefix, suffix)
+	return parse[T, PT](prefix, suffix)
 }
 
 func split(id string) (string, string, error) {
@@ -146,6 +146,14 @@ func fromUUID[T Subtype, PT SubtypePtr[T]](prefix, uidStr string) (T, error) {
 		return nilID, err
 	}
 	suffix := base32.Encode(uid)
+	return parse[T, PT](prefix, suffix)
+}
+
+func parse[T Subtype, PT SubtypePtr[T]](prefix string, suffix string) (T, error) {
+	if suffix == "" {
+		var id T
+		return id, errors.New("suffix can't be the empty string")
+	}
 	return from[T, PT](prefix, suffix)
 }
 

@@ -32,8 +32,8 @@ func (tid *TypeID[P]) init(prefix string, suffix string) {
 		tid.prefix = prefix
 	}
 
-	// If we're dealing with the "nil" suffix, we don't need to store it.
-	if suffix != nilSuffix {
+	// If we're dealing with the "zero" suffix, we don't need to store it.
+	if suffix != zeroSuffix {
 		tid.suffix = suffix
 	}
 }

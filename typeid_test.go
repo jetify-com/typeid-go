@@ -39,6 +39,34 @@ func TestNilIsEmpty(t *testing.T) {
 	assert.Equal(t, nilID.UUIDBytes(), emptyID.UUIDBytes())
 }
 
+func TestIsZero(t *testing.T) {
+	testdata := []struct {
+		input  string
+		output bool
+	}{
+		// IsZero == true values
+		{"00000000000000000000000000", true},
+		{"prefix_00000000000000000000000000", true},
+		{"other_00000000000000000000000000", true},
+		// IsZero == false values
+		{"00000000000000000000000001", false},
+		{"prefix_00000000000000000000000001", false},
+		{"other_00000000000000000000000001", false},
+	}
+
+	for _, td := range testdata {
+		t.Run(td.input, func(t *testing.T) {
+			tid, err := typeid.FromString(td.input)
+			if err != nil {
+				t.Error(err)
+			}
+			if tid.IsZero() != td.output {
+				t.Errorf("TypeId.IsZero should be %v for id %s", td.output, td.input)
+			}
+		})
+	}
+}
+
 func TestInvalidPrefix(t *testing.T) {
 	testdata := []struct {
 		name  string

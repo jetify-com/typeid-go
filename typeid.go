@@ -19,13 +19,13 @@ func (tid TypeID[P]) Prefix() string {
 	return defaultPrefix[P]()
 }
 
-const nilSuffix = "00000000000000000000000000"
+const zeroSuffix = "00000000000000000000000000"
 
 // Suffix returns the suffix of the TypeID in it's canonical base32 representation.
 func (tid TypeID[P]) Suffix() string {
-	// We want to treat the "empty" TypeID as equivalent to the Nil typeid
+	// We want to treat the "empty" TypeID as equivalent to the 'zero' typeid
 	if tid.suffix == "" {
-		return nilSuffix
+		return zeroSuffix
 	}
 	return tid.suffix
 }
@@ -57,6 +57,18 @@ func (tid TypeID[P]) UUIDBytes() []byte {
 // UUID decodes the TypeID's suffix as a UUID and returns it as a hex string
 func (tid TypeID[P]) UUID() string {
 	return uuid.FromBytesOrNil(tid.UUIDBytes()).String()
+}
+
+// IsZero returns true if the suffix of the TypeID is the zero suffix:
+// "00000000000000000000000000"
+//
+// Note that IsZero() returns true regardless of the prefix value. All
+// of these ids would return `IsZero == true`:
+// + "prefix_00000000000000000000000000"
+// + "test_00000000000000000000000000"
+// + "00000000000000000000000000"
+func (tid TypeID[P]) IsZero() bool {
+	return tid.suffix == "" || tid.suffix == zeroSuffix
 }
 
 // Must returns a TypeID if the error is nil, otherwise panics.
