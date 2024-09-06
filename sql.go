@@ -17,7 +17,7 @@ func (tid *TypeID[P]) Scan(src any) error {
 			return nil
 		}
 		return tid.UnmarshalText([]byte(obj))
-	// TODO: add supporte for []byte
+	// TODO: add support for []byte
 	// we don't just want to store the full string as a byte array. Instead
 	// we should encode using the UUID bytes. We could add support for
 	// Binary Marshalling and Unmarshalling at the same time.
