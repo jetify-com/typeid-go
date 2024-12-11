@@ -42,7 +42,6 @@ func (tid TypeID[P]) String() string {
 // UUIDBytes decodes the TypeID's suffix as a UUID and returns it's bytes
 func (tid TypeID[P]) UUIDBytes() []byte {
 	b, err := base32.Decode(tid.Suffix())
-
 	// Decode only fails if the suffix cannot be decoded for one of two reasons:
 	// 1. The suffix is not 26 characters long
 	// 2. The suffix contains characters that are not in the base32 alphabet

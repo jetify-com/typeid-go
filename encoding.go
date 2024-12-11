@@ -7,8 +7,10 @@ import (
 // TODO: Define a standardized binary encoding for typeids in the spec
 // and use that to implement encoding.BinaryMarshaler and encoding.BinaryUnmarshaler
 
-var _ encoding.TextMarshaler = (*TypeID[AnyPrefix])(nil)
-var _ encoding.TextUnmarshaler = (*TypeID[AnyPrefix])(nil)
+var (
+	_ encoding.TextMarshaler   = (*TypeID[AnyPrefix])(nil)
+	_ encoding.TextUnmarshaler = (*TypeID[AnyPrefix])(nil)
+)
 
 // UnmarshalText implements the encoding.TextUnmarshaler interface.
 // It parses a TypeID from a string using the same logic as FromString()
