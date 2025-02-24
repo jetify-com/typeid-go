@@ -6,7 +6,7 @@ toolchain go1.22.1
 
 require (
 	github.com/gofrs/uuid/v5 v5.3.1
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
