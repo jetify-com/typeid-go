@@ -98,8 +98,6 @@
   typeid: "prefix__00000000000000000000000000"
   description: "The prefix can't end with an underscore"
 
-# Tests specific to our golang implementation, consider promoting to the
-# spec tests
 - name: empty
   typeid: ""
   description: "The empty string is not a valid typeid"
