@@ -1,0 +1,23 @@
+# Benchmark results
+benchmark_results/
+
+# Go specific
+*.prof
+*.test
+*.out
+/vendor/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+bin/
+dist/ 
