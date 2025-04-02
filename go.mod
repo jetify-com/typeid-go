@@ -3,7 +3,7 @@ module go.jetify.com/typeid
 go 1.24.0
 
 require (
-	github.com/gofrs/uuid/v5 v5.3.1
+	github.com/gofrs/uuid/v5 v5.3.2
 	github.com/stretchr/testify v1.10.0
 	gopkg.in/yaml.v2 v2.4.0
 )
