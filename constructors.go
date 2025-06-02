@@ -1,7 +1,6 @@
 package typeid
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -9,81 +8,78 @@ import (
 	"go.jetify.com/typeid/base32"
 )
 
-var ErrConstructor = errors.New("constructor error")
-
-// New returns a new TypeID of the given type with a random suffix.
-//
-// Use the generic argument to pass in your typeid Subtype:
-//
-// Example:
-//
-//	  type UserID struct {
-//		   typeid.TypeID[UserPrefix]
-//	  }
-//	  id, err := typeid.New[UserID]()
-func New[T Subtype, PT SubtypePtr[T]]() (T, error) {
-	if isAnyID[T]() {
-		var id T
-		return id, errors.New("constructor error: use WithPrefix(), New() is for Subtypes")
-	}
-
-	prefix := defaultType[T]()
-	return from[T, PT](prefix, "")
-}
-
-// WithPrefix returns a new TypeID with the given prefix and a random suffix.
+// Generate returns a new TypeID with the given prefix and a random suffix.
 // If you want to create an id without a prefix, pass an empty string.
-func WithPrefix(prefix string) (AnyID, error) {
-	return from[AnyID](prefix, "")
-}
-
-// From returns a new TypeID with the given prefix and suffix.
-// If suffix is the empty string, a random suffix will be generated.
-// If you want to create an id without a prefix, pass an empty string as the prefix.
-func From(prefix string, suffix string) (AnyID, error) {
-	return from[AnyID](prefix, suffix)
-}
-
-// FromSuffix returns a new TypeID of the given suffix and type. The prefix
-// is inferred from the Subtype.
-//
-// Example:
-//
-//	  type UserID struct {
-//		   typeid.TypeID[UserPrefix]
-//	  }
-//	  id, err := typeid.FromSuffix[UserID]("00041061050r3gg28a1c60t3gf")
-func FromSuffix[T Subtype, PT SubtypePtr[T]](suffix string) (T, error) {
-	if isAnyID[T]() {
-		var id T
-		return id, errors.New("constructor error: use From(prefix, suffix), FromSuffix is for Subtypes")
+func Generate(prefix string) (TypeID, error) {
+	// Validate prefix early
+	if err := validatePrefix(prefix); err != nil {
+		return zeroID, err
 	}
 
-	prefix := defaultType[T]()
-	return parse[T, PT](prefix, suffix)
+	// Generate new UUID v7
+	uid, err := uuid.NewV7()
+	if err != nil {
+		return zeroID, err
+	}
+
+	// Use stack buffer for base32 encoding to avoid allocation
+	var suffixBuf [26]byte
+	base32.Encode(suffixBuf[:], [16]byte(uid))
+
+	// Build TypeID using helper function
+	return newTypeID(prefix, suffixBuf), nil
 }
 
-// FromString parses a TypeID from a string of the form <prefix>_<suffix>
-func FromString(s string) (AnyID, error) {
-	return Parse[AnyID](s)
+// MustGenerate returns a new TypeID with the given prefix and a random suffix.
+// It panics if the prefix is invalid. Use Generate() if you need error handling.
+func MustGenerate(prefix string) TypeID {
+	tid, err := Generate(prefix)
+	if err != nil {
+		panic(err)
+	}
+	return tid
 }
 
 // Parse parses a TypeID from a string of the form <prefix>_<suffix>
-// and ensures the TypeID is of the right type.
-//
-// Example:
-//
-//	  type UserID struct {
-//		   typeid.TypeID[UserPrefix]
-//	  }
-//	  id, err := typeid.Parse[UserID]("user_00041061050r3gg28a1c60t3gf")
-func Parse[T Subtype, PT SubtypePtr[T]](s string) (T, error) {
+func Parse(s string) (TypeID, error) {
 	prefix, suffix, err := split(s)
 	if err != nil {
-		var id T
-		return id, err
+		return zeroID, err
 	}
-	return parse[T, PT](prefix, suffix)
+
+	// Validate prefix
+	if err := validatePrefix(prefix); err != nil {
+		return zeroID, err
+	}
+
+	// Build TypeID from string parts
+	if suffix == "" {
+		return zeroID, &validationError{
+			Message: "suffix cannot be empty",
+		}
+	}
+
+	// Validate suffix
+	if err := validateSuffix(suffix); err != nil {
+		return zeroID, err
+	}
+
+	// Handle zero suffix case - empty TypeID should be functionally equivalent
+	if prefix == "" && suffix == ZeroSuffix {
+		// Return zero TypeID for compatibility with tests
+		return zeroID, nil
+	}
+
+	// Build TypeID efficiently
+	var tid TypeID
+	if prefix == "" {
+		tid.value = suffix
+		tid.prefixLen = 0
+	} else {
+		tid.value = prefix + "_" + suffix
+		tid.prefixLen = uint8(len(prefix))
+	}
+	return tid, nil
 }
 
 func split(id string) (string, string, error) {
@@ -95,86 +91,102 @@ func split(id string) (string, string, error) {
 	prefix := id[:index]
 	suffix := id[index+1:]
 	if prefix == "" {
-		return "", "", errors.New("prefix cannot be empty when there's a separator")
+		return "", "", &validationError{
+			Message: "prefix cannot be empty when separator \"_\" is present",
+		}
 	}
 	return prefix, suffix, nil
 }
 
-// FromUUID encodes the given UUID (in hex string form) as a TypeID
-func FromUUID[T Subtype, PT SubtypePtr[T]](uidStr string) (T, error) {
-	if isAnyID[T]() {
-		var id T
-		return id, fmt.Errorf(
-			"%w: use FromUUIDWithPrefix(), FromUUID() is for Subtypes",
-			ErrConstructor,
-		)
+// newTypeID constructs a TypeID from a prefix and 26-byte base32 suffix
+// with minimal allocations. The suffix must be exactly 26 bytes.
+func newTypeID(prefix string, suffixBuf [26]byte) TypeID {
+	var tid TypeID
+	if prefix == "" {
+		tid.value = string(suffixBuf[:])
+		tid.prefixLen = 0
+	} else {
+		var builder strings.Builder
+		totalLen := len(prefix) + 1 + len(suffixBuf)
+		builder.Grow(totalLen) // Pre-allocate capacity to avoid reallocations
+		builder.WriteString(prefix)
+		builder.WriteByte('_')
+		builder.Write(suffixBuf[:])
+		tid.value = builder.String()
+		tid.prefixLen = uint8(len(prefix))
 	}
-	return fromUUID[T, PT](defaultPrefix[T](), uidStr)
+	return tid
 }
 
-// FromUUIDBytes encodes the given UUID (in byte form) as a TypeID
-func FromUUIDBytes[T Subtype, PT SubtypePtr[T]](bytes []byte) (T, error) {
-	if isAnyID[T]() {
-		var id T
-		return id, fmt.Errorf(
-			"%w: use FromUUIDBytesWithPrefix(), FromUUIDBytes() is for Subtypes",
-			ErrConstructor,
-		)
+// FromUUID encodes the given UUID (in hex string form) as a TypeID with the given prefix.
+// If you want to create an id without a prefix, pass an empty string for the prefix.
+func FromUUID(prefix string, uidStr string) (TypeID, error) {
+	// Validate prefix early
+	if err := validatePrefix(prefix); err != nil {
+		return zeroID, err
 	}
-	uidStr := uuid.FromBytesOrNil(bytes).String()
-	return FromUUID[T, PT](uidStr)
-}
 
-// FromUUIDWithPrefix encodes the given UUID (in hex string form) as a TypeID
-// with the given prefix.
-func FromUUIDWithPrefix(prefix string, uidStr string) (AnyID, error) {
-	return fromUUID[AnyID](prefix, uidStr)
-}
-
-// FromUUID encodes the given UUID (in byte form) as a TypeID with the given
-// prefix.
-func FromUUIDBytesWithPrefix(prefix string, bytes []byte) (AnyID, error) {
-	uidStr := uuid.FromBytesOrNil(bytes).String()
-	return FromUUIDWithPrefix(prefix, uidStr)
-}
-
-func fromUUID[T Subtype, PT SubtypePtr[T]](prefix, uidStr string) (T, error) {
 	uid, err := uuid.FromString(uidStr)
-	var nilID T
-
 	if err != nil {
-		return nilID, err
-	}
-	suffix := base32.Encode(uid)
-	return parse[T, PT](prefix, suffix)
-}
-
-func parse[T Subtype, PT SubtypePtr[T]](prefix string, suffix string) (T, error) {
-	if suffix == "" {
-		var id T
-		return id, errors.New("suffix can't be the empty string")
-	}
-	return from[T, PT](prefix, suffix)
-}
-
-func from[T Subtype, PT SubtypePtr[T]](prefix string, suffix string) (T, error) {
-	var tid T
-	if err := validatePrefix[T](prefix); err != nil {
-		return tid, err
-	}
-
-	if suffix == "" {
-		uid, err := uuid.NewV7()
-		if err != nil {
-			return tid, err
+		return zeroID, &validationError{
+			Message: fmt.Sprintf("invalid UUID format %q", uidStr),
+			Cause:   err,
 		}
-		suffix = base32.Encode(uid)
 	}
 
-	if err := validateSuffix(suffix); err != nil {
-		return tid, err
+	// Handle zero UUID case - return canonical zeroID for consistency
+	if uid == (uuid.UUID{}) && prefix == "" {
+		return zeroID, nil
 	}
 
-	PT(&tid).init(prefix, suffix)
-	return tid, nil
+	// Use stack buffer for base32 encoding to avoid allocation
+	var suffixBuf [26]byte
+	base32.Encode(suffixBuf[:], [16]byte(uid))
+
+	// No need to validate suffixBuf - base32.Encode() always produces valid 26-byte output
+
+	// Build TypeID using helper function
+	return newTypeID(prefix, suffixBuf), nil
+}
+
+// FromBytes creates a TypeID from a prefix and 16-byte UUID with zero allocations.
+// The bytes must be exactly 16 bytes long (standard UUID byte length).
+// If you want to create an id without a prefix, pass an empty string for the prefix.
+func FromBytes(prefix string, uidBytes []byte) (TypeID, error) {
+	// Validate inputs early
+	if len(uidBytes) != 16 {
+		return zeroID, &validationError{
+			Message: fmt.Sprintf("UUID bytes must be exactly 16 bytes, got %d", len(uidBytes)),
+		}
+	}
+
+	if err := validatePrefix(prefix); err != nil {
+		return zeroID, err
+	}
+
+	// Handle zero UUID case - return canonical zeroID for consistency
+	if isZeroBytes(uidBytes) && prefix == "" {
+		return zeroID, nil
+	}
+
+	// Convert to array for base32 encoding (zero allocation conversion)
+	var uidArray [16]byte
+	copy(uidArray[:], uidBytes)
+
+	// Use stack buffer for base32 encoding to avoid allocation
+	var suffixBuf [26]byte
+	base32.Encode(suffixBuf[:], uidArray)
+
+	// Build TypeID using helper function
+	return newTypeID(prefix, suffixBuf), nil
+}
+
+// isZeroBytes efficiently checks if a 16-byte slice is all zeros
+func isZeroBytes(b []byte) bool {
+	for _, v := range b {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
 }

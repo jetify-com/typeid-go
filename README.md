@@ -21,10 +21,7 @@ go get go.jetify.com/typeid
 
 ## Usage
 
-This library provides a go implementation of TypeID that allows you
-to define your own custom id types for added compile-time safety.
-
-If you don't need compile-time safety, you can use the provided `typeid.AnyID` directly:
+This library provides a go implementation of TypeID:
 
 ```go
 import (
@@ -32,43 +29,26 @@ import (
 )
 
 func example() {
-  tid, _ := typeid.WithPrefix("user")
+  // Generate a new TypeID with a prefix (panics on invalid prefix)
+  tid := typeid.MustGenerate("user")
   fmt.Println(tid)
-}
-```
-
-If you want compile-time safety, define your own custom types with two steps:
-
-1. Define a struct the implements the method `Prefix`. Prefix should return the
-   string that should be used as the prefix for your custom type.
-2. Define you own id type, by embedding `typeid.TypeID[CustomPrefix]`
-
-For example to define a UserID with prefix `user`:
-
-```go
-import (
-  "go.jetify.com/typeid"
-)
-
-// Define the prefix:
-type UserPrefix struct {}
-func (UserPrefix) Prefix() string { return "user" }
-
-// Define UserID:
-type UserID struct {
-	typeid.TypeID[UserPrefix]
-}
-```
-
-Now you can use the UserID type to generate new ids:
-
-```go
-import (
-  "go.jetify.com/typeid"
-)
-
-func example() {
-  tid, _ := typeid.New[UserID]()
+  
+  // Generate a new TypeID without a prefix
+  tid = typeid.MustGenerate("")
+  fmt.Println(tid)
+  
+  // Generate with error handling
+  tid, err := typeid.Generate("user")
+  if err != nil {
+    log.Fatal(err)
+  }
+  
+  // Parse an existing TypeID
+  tid, _ = typeid.Parse("user_00041061050r3gg28a1c60t3gf")
+  fmt.Println(tid)
+  
+  // Convert from UUID
+  tid, _ = typeid.FromUUID("user", "018e5f71-6f04-7c5c-8123-456789abcdef")
   fmt.Println(tid)
 }
 ```

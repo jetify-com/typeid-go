@@ -105,3 +105,11 @@
 - name: prefix-empty
   typeid: "prefix_"
   description: "The suffix can't be the empty string"
+
+
+# Added just in our go implementation, consider moving to the spec:
+- name: suffix-dot
+  # This example has the right length, so that the failure is caused by the dot
+  # and not the suffix length
+  typeid: "prefix_00041061050.3gg28a1_60t3gf"
+  description: "The suffix can't have any dots/periods"
