@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"go.jetify.com/typeid"
+	"go.jetify.com/typeid/v2"
 )
 
 // ExampleGenerate demonstrates creating a new TypeID for a user entity

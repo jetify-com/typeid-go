@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/gofrs/uuid/v5"
-	"go.jetify.com/typeid"
+	"go.jetify.com/typeid/v2"
 )
 
 // Benchmark suite for TypeID operations.
