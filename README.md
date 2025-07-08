@@ -16,7 +16,7 @@ This particular implementation provides a go library for generating and parsing 
 To add this library as a dependency in your go module, run:
 
 ```bash
-go get go.jetify.com/typeid
+go get go.jetify.com/typeid/v2
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ This library provides a go implementation of TypeID:
 
 ```go
 import (
-  "go.jetify.com/typeid"
+  "go.jetify.com/typeid/v2"
 )
 
 func example() {
