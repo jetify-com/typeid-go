@@ -98,13 +98,3 @@ func (tid TypeID) HasSuffix() bool {
 func (tid TypeID) IsZero() bool {
 	return tid.value == ""
 }
-
-// Must returns a TypeID if the error is nil, otherwise panics.
-// Often used with Parse() to create a TypeID in a single line as follows:
-// tid := Must(Parse("prefix_abc123"))
-func Must(tid TypeID, err error) TypeID {
-	if err != nil {
-		panic(err)
-	}
-	return tid
-}

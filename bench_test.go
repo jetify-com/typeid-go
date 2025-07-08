@@ -52,7 +52,7 @@ var testTypeIDs = func() []typeid.TypeID {
 	var ids []typeid.TypeID
 	for _, prefix := range prefixPatterns {
 		for i := 0; i < 10; i++ {
-			ids = append(ids, typeid.Must(typeid.Generate(prefix)))
+			ids = append(ids, typeid.MustGenerate(prefix))
 		}
 	}
 	return ids
@@ -431,8 +431,8 @@ func BenchmarkTypicalUsage(b *testing.B) {
 	// Client pattern: few creates, many string conversions
 	b.Run("client", func(b *testing.B) {
 		// Pre-create TypeIDs
-		userID := typeid.Must(typeid.Generate("user"))
-		sessionID := typeid.Must(typeid.Generate("session"))
+		userID := typeid.MustGenerate("user")
+		sessionID := typeid.MustGenerate("session")
 
 		b.ReportAllocs()
 		b.ResetTimer()
@@ -457,11 +457,11 @@ func BenchmarkTypicalUsage(b *testing.B) {
 		var tid typeid.TypeID
 		for b.Loop() {
 			// Create new request ID
-			tid = typeid.Must(typeid.Generate("req"))
+			tid = typeid.MustGenerate("req")
 			s = tid.String()
 
 			// Create response ID
-			tid = typeid.Must(typeid.Generate("resp"))
+			tid = typeid.MustGenerate("resp")
 			s = tid.String()
 		}
 

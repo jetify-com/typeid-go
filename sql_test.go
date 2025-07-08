@@ -1,6 +1,7 @@
 package typeid_test
 
 import (
+	"database/sql"
 	_ "embed"
 	"errors"
 	"testing"
@@ -30,7 +31,7 @@ func TestScanValid(t *testing.T) {
 			err := scanned.Scan(td.Tid)
 			assert.NoError(t, err)
 
-			expected := typeid.Must(typeid.Parse(td.Tid))
+			expected := typeid.MustParse(td.Tid)
 			assert.Equal(t, expected, scanned)
 			assert.Equal(t, td.Tid, scanned.String())
 		})
@@ -113,7 +114,7 @@ func TestValue(t *testing.T) {
 
 	for _, td := range testdata {
 		t.Run(td.Name, func(t *testing.T) {
-			tid := typeid.Must(typeid.Parse(td.Tid))
+			tid := typeid.MustParse(td.Tid)
 			actual, err := tid.Value()
 			assert.NoError(t, err)
 			assert.Equal(t, td.Tid, actual)
@@ -121,62 +122,63 @@ func TestValue(t *testing.T) {
 	}
 }
 
-func TestNullableIDScanValid(t *testing.T) {
+// Test sql.Null[TypeID] to verify it works for nullable database columns
+func TestSQLNullScanValid(t *testing.T) {
 	var testdata []ValidExample
 	err := yaml.Unmarshal(validSQLYML, &testdata)
 	require.NoError(t, err)
 
 	for _, td := range testdata {
 		t.Run(td.Name, func(t *testing.T) {
-			// Test NullableID.Scan with valid TypeID strings
-			var scanned typeid.NullableID
+			// Test sql.Null[TypeID].Scan with valid TypeID strings
+			var scanned sql.Null[typeid.TypeID]
 			err := scanned.Scan(td.Tid)
 			assert.NoError(t, err)
 
-			expected := typeid.Must(typeid.Parse(td.Tid))
-			assert.True(t, scanned.Valid, "NullableID should be valid for valid typeid")
-			assert.Equal(t, expected, scanned.TypeID)
-			assert.Equal(t, td.Tid, scanned.TypeID.String())
+			expected := typeid.MustParse(td.Tid)
+			assert.True(t, scanned.Valid, "sql.Null[TypeID] should be valid for valid typeid")
+			assert.Equal(t, expected, scanned.V)
+			assert.Equal(t, td.Tid, scanned.V.String())
 		})
 	}
 }
 
-func TestNullableIDScanSpecialCases(t *testing.T) {
+func TestSQLNullScanSpecialCases(t *testing.T) {
 	testdata := []struct {
 		name        string
 		input       any
-		expected    typeid.NullableID
+		expected    sql.Null[typeid.TypeID]
 		expectError bool
 	}{
-		{"nil", nil, typeid.NullableID{Valid: false}, false},
-		{"empty string", "", typeid.NullableID{}, true},
+		{"nil", nil, sql.Null[typeid.TypeID]{Valid: false}, false},
+		{"empty string", "", sql.Null[typeid.TypeID]{}, true},
 	}
 
 	for _, td := range testdata {
 		t.Run(td.name, func(t *testing.T) {
-			var scanned typeid.NullableID
+			var scanned sql.Null[typeid.TypeID]
 			err := scanned.Scan(td.input)
 
 			if td.expectError {
 				assert.Error(t, err)
-				assert.Contains(t, err.Error(), "empty string is invalid TypeID")
+				assert.Contains(t, err.Error(), "cannot scan empty string into TypeID")
 				// Verify that scan errors are validation errors
 				assert.True(t, errors.Is(err, typeid.ErrValidation), "expected validation error")
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, td.expected.Valid, scanned.Valid)
 				if td.expected.Valid {
-					assert.Equal(t, td.expected.TypeID, scanned.TypeID)
+					assert.Equal(t, td.expected.V, scanned.V)
 				}
 			}
 		})
 	}
 }
 
-func TestNullableIDValue(t *testing.T) {
+func TestSQLNullValue(t *testing.T) {
 	// Test the invalid case (Valid: false)
 	t.Run("invalid", func(t *testing.T) {
-		invalid := typeid.NullableID{Valid: false}
+		invalid := sql.Null[typeid.TypeID]{Valid: false}
 		actual, err := invalid.Value()
 		assert.NoError(t, err)
 		assert.Equal(t, nil, actual)
@@ -189,8 +191,8 @@ func TestNullableIDValue(t *testing.T) {
 
 	for _, td := range testdata {
 		t.Run(td.Name, func(t *testing.T) {
-			tid := typeid.Must(typeid.Parse(td.Tid))
-			nullable := typeid.NullableID{TypeID: tid, Valid: true}
+			tid := typeid.MustParse(td.Tid)
+			nullable := sql.Null[typeid.TypeID]{V: tid, Valid: true}
 			actual, err := nullable.Value()
 			assert.NoError(t, err)
 			assert.Equal(t, td.Tid, actual)
@@ -198,23 +200,22 @@ func TestNullableIDValue(t *testing.T) {
 	}
 }
 
-func TestNullableIDScanInvalid(t *testing.T) {
+func TestSQLNullScanInvalid(t *testing.T) {
 	var testdata []InvalidExample
 	err := yaml.Unmarshal(invalidSQLYML, &testdata)
 	require.NoError(t, err)
 
 	for _, td := range testdata {
 		t.Run(td.Name, func(t *testing.T) {
-			// Test NullableID.Scan with invalid TypeID strings
-			var scanned typeid.NullableID
+			// Test sql.Null[TypeID].Scan with invalid TypeID strings
+			var scanned sql.Null[typeid.TypeID]
 			err := scanned.Scan(td.Tid)
-			assert.Error(t, err, "NullableID.Scan should fail for invalid typeid: %s", td.Tid)
-			assert.False(t, scanned.Valid, "NullableID should not be valid after scan error")
+			assert.Error(t, err, "sql.Null[TypeID].Scan should fail for invalid typeid: %s", td.Tid)
 		})
 	}
 }
 
-func TestNullableIDScanUnsupportedType(t *testing.T) {
+func TestSQLNullScanUnsupportedType(t *testing.T) {
 	testdata := []struct {
 		name  string
 		input any
@@ -233,12 +234,10 @@ func TestNullableIDScanUnsupportedType(t *testing.T) {
 
 	for _, td := range testdata {
 		t.Run(td.name, func(t *testing.T) {
-			var scanned typeid.NullableID
+			var scanned sql.Null[typeid.TypeID]
 			err := scanned.Scan(td.input)
 			assert.Error(t, err)
 			assert.Contains(t, err.Error(), "unsupported scan type")
-			assert.False(t, scanned.Valid, "NullableID should not be valid after scan error")
-			// Verify that scan errors are validation errors
 			assert.True(t, errors.Is(err, typeid.ErrValidation), "expected validation error")
 		})
 	}

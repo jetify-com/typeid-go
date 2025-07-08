@@ -1,6 +1,7 @@
 package typeid_test
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 
@@ -47,7 +48,7 @@ func ExampleTypeID_MarshalText() {
 
 	// Create a product with TypeID
 	product := Product{
-		ID:    typeid.Must(typeid.Parse("product_00041061050r3gg28a1c60t3gf")),
+		ID:    typeid.MustParse("product_00041061050r3gg28a1c60t3gf"),
 		Name:  "Widget",
 		Price: 29.99,
 	}
@@ -124,9 +125,10 @@ func ExampleTypeID_Scan() {
 	// Retrieved user user_00041061050r3gg28a1c60t3gf from database
 }
 
-// ExampleNullableID demonstrates using NullableID for nullable database columns
-func ExampleNullableID() {
-	var managerID typeid.NullableID
+// Example_nullableColumns demonstrates using sql.Null[TypeID] for nullable database columns.
+// This is the recommended approach for handling nullable TypeID columns in Go applications.
+func Example_nullableColumns() {
+	var managerID sql.Null[typeid.TypeID]
 
 	// Scan NULL value from database
 	err := managerID.Scan(nil)
@@ -141,7 +143,7 @@ func ExampleNullableID() {
 		panic(err)
 	}
 	fmt.Printf("Is valid: %v\n", managerID.Valid)
-	fmt.Printf("Manager: %s\n", managerID.TypeID.String())
+	fmt.Printf("Manager: %s\n", managerID.V.String())
 
 	// Output:
 	// Is valid: false

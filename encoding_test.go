@@ -25,7 +25,7 @@ func TestJSONValid(t *testing.T) {
 	for _, td := range testdata {
 		t.Run(td.Name, func(t *testing.T) {
 			// Test MarshalText via JSON encoding
-			tid := typeid.Must(typeid.Parse(td.Tid))
+			tid := typeid.MustParse(td.Tid)
 			encoded, err := json.Marshal(tid)
 			assert.NoError(t, err)
 			assert.Equal(t, `"`+td.Tid+`"`, string(encoded))
@@ -47,7 +47,7 @@ func TestAppendTextValid(t *testing.T) {
 
 	for _, td := range testdata {
 		t.Run(td.Name, func(t *testing.T) {
-			tid := typeid.Must(typeid.Parse(td.Tid))
+			tid := typeid.MustParse(td.Tid)
 
 			// Test AppendText with nil slice (equivalent to MarshalText)
 			result, err := tid.AppendText(nil)
@@ -121,21 +121,21 @@ func TestJSONOmitZero(t *testing.T) {
 		},
 		{
 			name:            "constructed zero ID",
-			typeID:          typeid.Must(typeid.Parse("00000000000000000000000000")),
+			typeID:          typeid.MustParse("00000000000000000000000000"),
 			expectedWithout: `{"id":"00000000000000000000000000"}`,
 			expectedWith:    `{}`,
 			description:     "constructed zero ID should omit with omitzero tag",
 		},
 		{
 			name:            "prefixed zero ID",
-			typeID:          typeid.Must(typeid.Parse("user_00000000000000000000000000")),
+			typeID:          typeid.MustParse("user_00000000000000000000000000"),
 			expectedWithout: `{"id":"user_00000000000000000000000000"}`,
 			expectedWith:    `{"id":"user_00000000000000000000000000"}`,
 			description:     "prefixed zero ID should not omit because IsZero() returns false",
 		},
 		{
 			name:            "non-zero ID",
-			typeID:          typeid.Must(typeid.Parse("prefix_01h455vb4pex5vsknk084sn02q")),
+			typeID:          typeid.MustParse("prefix_01h455vb4pex5vsknk084sn02q"),
 			expectedWithout: `{"id":"prefix_01h455vb4pex5vsknk084sn02q"}`,
 			expectedWith:    `{"id":"prefix_01h455vb4pex5vsknk084sn02q"}`,
 			description:     "non-zero ID should always be included",
