@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid/v5"
-	"go.jetify.com/typeid/base32"
+	"go.jetify.com/typeid/v2/base32"
 )
 
 // Generate returns a new TypeID with the given prefix and a random suffix.

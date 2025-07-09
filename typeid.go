@@ -2,7 +2,7 @@ package typeid
 
 import (
 	"github.com/gofrs/uuid/v5"
-	"go.jetify.com/typeid/base32"
+	"go.jetify.com/typeid/v2/base32"
 )
 
 // TypeID is a unique identifier with a given type as defined by the TypeID spec
