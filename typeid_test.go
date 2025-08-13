@@ -235,7 +235,7 @@ func testInvalidExample(t *testing.T, example InvalidExample) {
 }
 
 // testInvalidPrefix tests that all constructors properly reject invalid prefixes
-func testInvalidPrefix(t *testing.T, prefix string, desc string) {
+func testInvalidPrefix(t *testing.T, prefix, desc string) {
 	t.Helper()
 
 	// Test Generate constructor with invalid prefix

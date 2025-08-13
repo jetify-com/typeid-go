@@ -120,7 +120,7 @@ func newTypeID(prefix string, suffixBuf [26]byte) TypeID {
 
 // FromUUID encodes the given UUID (in hex string form) as a TypeID with the given prefix.
 // If you want to create an id without a prefix, pass an empty string for the prefix.
-func FromUUID(prefix string, uidStr string) (TypeID, error) {
+func FromUUID(prefix, uidStr string) (TypeID, error) {
 	// Validate prefix early
 	if err := validatePrefix(prefix); err != nil {
 		return zeroID, err
