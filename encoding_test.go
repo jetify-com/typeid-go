@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/goccy/go-yaml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.jetify.com/typeid/v2"
-	"gopkg.in/yaml.v3"
 )
 
 //go:embed testdata/valid.yml
