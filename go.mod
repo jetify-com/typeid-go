@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/goccy/go-yaml v1.18.0
-	github.com/gofrs/uuid/v5 v5.3.2
+	github.com/gofrs/uuid/v5 v5.4.0
 	github.com/stretchr/testify v1.10.0
 )
 
